@@ -8,8 +8,8 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 
 // Connect DB
-mongoose.connect("mongodb://parjana:pass123@ac-demqhel-shard-00-00.hxbv3c8.mongodb.net:27017,ac-demqhel-shard-00-01.hxbv3c8.mongodb.net:27017,ac-demqhel-shard-00-02.hxbv3c8.mongodb.net:27017/pizza-palace?ssl=true&replicaSet=atlas-78bkht-shard-0&authSource=admin&appName=Cluster0")
-  .then(() => console.log("MongoDB connected"))
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => { console.error(err); process.exit(1); });
 
 // Order Schema
@@ -38,7 +38,7 @@ const Order = mongoose.model("Order", orderSchema);
 
 // ── Routes ──────────────────────────────────────────────
 
-// place an order
+// POST /api/orders  — place an order
 app.post("/api/orders", async (req, res) => {
   try {
     const { userId, items, totalAmount, deliveryAddress } = req.body;
@@ -52,7 +52,7 @@ app.post("/api/orders", async (req, res) => {
   }
 });
 
-// get orders for a user
+// GET /api/orders/:userId  — get orders for a user
 app.get("/api/orders/:userId", async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.params.userId }).sort({ createdAt: -1 });
@@ -62,7 +62,7 @@ app.get("/api/orders/:userId", async (req, res) => {
   }
 });
 
-//  cancel an order
+// DELETE /api/orders/:id  — cancel an order
 app.delete("/api/orders/:id", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
